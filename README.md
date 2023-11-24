@@ -35,8 +35,9 @@ python -m train -c hw_tts/configs/train_config.json
 To run test inference (texts are hard-coded in test.py):
 ```shell
 python test.py -c hw_tts/configs/test_config.json -r best_model/best_model.pth
-
 ```
+
+Current results are stored in **/generated** directory.
 
 ## Author
 Dmitrii Uspenskii HSE AMI 4th year.
