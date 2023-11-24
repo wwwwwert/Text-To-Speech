@@ -1,0 +1,62 @@
+{
+  "name": "default_config",
+  "n_gpu": 1,
+  "preprocessing": {
+    "sr": 22050
+  },
+  "augmentations": {},
+  "arch": {
+    "type": "FastSpeech2",
+    "args": {
+    }
+  },
+  "data": {
+    "train": {
+      "batch_size": 20,
+      "num_workers": 5,
+      "datasets": [
+        {
+          "type": "LJspeechDataset",
+          "args": {
+            "part": "train",
+            "max_audio_length": 20.0
+          }
+        }
+      ]
+    }
+  },
+  "optimizer": {
+    "type": "Adam",
+    "args": {
+      "lr": 3e-4
+    }
+  },
+  "loss": {
+    "type": "FastSpeech2Loss",
+    "args": {}
+  },
+  "metrics": [],
+  "lr_scheduler": {
+    "type": "OneCycleLR",
+    "args": {
+      "steps_per_epoch": 24000,
+      "epochs": 31,
+      "anneal_strategy": "cos",
+      "max_lr": 3e-4,
+      "pct_start": 0.2
+    }
+  },
+  "trainer": {
+    "epochs": 30,
+    "save_dir": "saved/",
+    "save_period": 1,
+    "verbosity": 2,
+    "monitor": "min val_loss",
+    "early_stop": 100,
+    "visualize": "wandb",
+    "wandb_project": "tts_project",
+    "wandb_run_name": "baseline",
+    "len_epoch": 1000,
+    "grad_norm_clip": 10
+  }
+}
