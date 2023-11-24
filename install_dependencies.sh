@@ -1,7 +1,7 @@
 pip install -r requirements.txt
 
 # download model
-wget "https://disk.yandex.ru/d/9abt9aZHPYyEfg" -O best_model.zip
+wget "https://disk.yandex.ru/d/9D4JVzB3FU8usQ" -O best_model.zip
 unzip best_model.zip
 rm best_model.zip
 

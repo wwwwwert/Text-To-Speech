@@ -57,7 +57,7 @@ class FastSpeech2(BaseModel):
             buckets = torch.bucketize(torch.log(pitch_target + 1), self.pitch_space)
         else:
             estimated_pitch = torch.exp(pitch_predictor_output) - 1
-            estimated_pitch = estimated_pitch * beta
+            estimated_pitch *= beta
             buckets = torch.bucketize(torch.log(estimated_pitch + 1), self.pitch_space)
         emb = self.pitch_emb(buckets)
         return emb, pitch_predictor_output
@@ -65,12 +65,11 @@ class FastSpeech2(BaseModel):
     def get_energy(self, x, energy_target=None, gamma=1.0):
         energy_predictor_output = self.energy_predictor(x)
         
-        # we estimate energy_target + 1 to avoid nans
         if energy_target is not None:
             buckets = torch.bucketize(torch.log(energy_target + 1), self.energy_space)
         else:
-            estimated_energy = torch.exp(energy_predictor_output) - 1 # (energy_target + 1) - 1
-            estimated_energy = estimated_energy * gamma # energy_target * gamma
+            estimated_energy = torch.exp(energy_predictor_output) - 1
+            estimated_energy *= gamma
             buckets = torch.bucketize(torch.log(estimated_energy + 1), self.energy_space)
         emb = self.energy_emb(buckets)
         return emb, energy_predictor_output

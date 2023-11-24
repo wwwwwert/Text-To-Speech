@@ -1,18 +1,21 @@
-# ASR project 
+# TTS project 
 
 ## Project description
-This is HW1 in the course Deep Learning for Sound Processing.
+This is HW3 in the course Deep Learning for Sound Processing.
 
-In this project DeepSpeech2 model was implemented for ASR task.
+In this project FastSpeech2 model was implemented for TTS task.
 
 ## Project structure
 - **/hw_asr** - project scripts
-- **/requirements_loaders** - shell scripts to load requirements
-- **test_data** - additional small test dataset
+- **/generated** - generated samples for evaluation
+- **/waveglow** - converter from MEL to audio with example notebook
 - _install_dependencies.sh_ - script for dependencies installation
 - _requirements.txt_ - Python requirements list
 - _train.py_ - script to run train
 - _test.py_ - script to run test
+- _features_makers.py_ - Pitch and Energy extractors
+- _synthesizer.py_ - class to synthesize speech from text
+- _preprocess_data.ipynb_ - saves features for Dataset
 
 ## Installation guide
 
@@ -24,27 +27,16 @@ To install all required dependencies and final model run:
 ```
 
 ## Reproduce results
-To run train with _LibriSpeech_ _train-100_ and _train-360_ datasets:
+To run train with _LJSpeech_ datasets:
 ```shell
-python -m train -c hw_asr/configs/train_config.json
+python -m train -c hw_tts/configs/train_config.json
 ```
 
-To run test inference with _LibriSpeech_ _test-clean_ and _test-other_ datasets:
+To run test inference (texts are hard-coded in test.py):
 ```shell
-python test.py \
-   -c hw_asr/configs/test-clean_config.json \
-   -r best_model/model_best.pth \
-   -o test-clean_result.json \
-   -b 50
+python test.py -c hw_tts/configs/test_config.json -r best_model/best_model.pth
 
-python test.py \
-   -c hw_asr/configs/test-other_config.json \
-   -r best_model/model_best.pth \
-   -o test-other_result.json \
-   -b 50
 ```
-
-There is additional Jupyter Notebook _hw_asr/tests/calc_stats.ipynb_ to calculate CER and WER metrics from .json file created by _test.py_.
 
 ## Author
 Dmitrii Uspenskii HSE AMI 4th year.

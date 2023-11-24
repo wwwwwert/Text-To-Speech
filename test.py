@@ -24,14 +24,10 @@ def main(config, out_file):
     # define cpu or gpu if possible
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # text_encoder
-    text_encoder = config.get_text_encoder()
 
-    # setup data_loader instances
-    dataloaders = get_dataloaders(config, text_encoder)
 
     # build model architecture
-    model = config.init_obj(config["arch"], module_model, n_class=len(text_encoder))
+    model = config.init_obj(config["arch"], module_model)
     logger.info(model)
 
     logger.info("Loading checkpoint: {} ...".format(config.resume))
@@ -44,12 +40,13 @@ def main(config, out_file):
     # prepare model for testing
     model = model.to(device)
     model.eval()
-    synthesizer = Synthesizer()
+    synthesizer = Synthesizer(model)
 
     sentences = [
         'A defibrillator is a device that gives a high energy electric shock to the heart of someone who is in cardiac arrest',
         'Massachusetts Institute of Technology may be best known for its math, science and engineering education',
         'Wasserstein distance or Kantorovich Rubinstein metric is a distance function defined between probability distributions on a given metric space',
+        'I love my mom and dads'
     ]
 
     param_mapping = {
@@ -58,50 +55,50 @@ def main(config, out_file):
         'gamma': 'energy',
     }
     
-    for idx, sentence in enumerate(sentences):
-        dir = f'generated/sentence_{sentence}'
+    for idx, sentence in tqdm(enumerate(sentences), total=len(sentences)):
+        dir = f'generated/sentence_{idx}'
         os.makedirs(dir, exist_ok=True)
         dir_regular = os.path.join(dir, 'regular')
-        os.makedirs(os.path.join(), exist_ok=True)
+        os.makedirs(dir_regular, exist_ok=True)
         regular_params = {
             'alpha': 1.0,
             'beta': 1.0,
             'gamma': 1.0
         }
-        regular_audio = synthesizer(sentence, regular_params)
-        write(os.path.join(dir_regular, 'regular.wav'), regular_audio)
+        regular_audio = synthesizer.synthesize(sentence, regular_params)
+        write(os.path.join(dir_regular, 'regular.wav'), 22050, regular_audio)
 
-        dir_plus_20 = os.path.join(dir, '_plus_twenty_percent')
+        dir_plus_20 = os.path.join(dir, 'plus_twenty_percent')
         os.makedirs(dir_plus_20, exist_ok=True)
         for param in regular_params.keys():
             param_name = param_mapping[param]
             params = regular_params.copy()
             params[param] = 1.2
-            audio = synthesizer(sentence, params)
-            write(os.path.join(dir_plus_20, f'{param_name}.wav'), audio)
+            audio = synthesizer.synthesize(sentence, params)
+            write(os.path.join(dir_plus_20, f'{param_name}.wav'), 22050, audio)
         plus_twenty_params = {
             'alpha': 1.2,
             'beta': 1.2,
             'gamma': 1.2
         }
-        audio = synthesizer(sentence, plus_twenty_params)
-        write(os.path.join(dir_plus_20, 'all_params.wav'), audio)
+        audio = synthesizer.synthesize(sentence, plus_twenty_params)
+        write(os.path.join(dir_plus_20, 'all_params.wav'), 22050, audio)
 
-        dir_minus_20 = os.path.join(dir, '_minus_twenty_percent')
+        dir_minus_20 = os.path.join(dir, 'minus_twenty_percent')
         os.makedirs(dir_minus_20, exist_ok=True)
         for param in regular_params.keys():
             param_name = param_mapping[param]
             params = regular_params.copy()
             params[param] = 0.8
-            audio = synthesizer(sentence, params)
-            write(os.path.join(dir_minus_20, f'{param_name}.wav'), audio)
+            audio = synthesizer.synthesize(sentence, params)
+            write(os.path.join(dir_minus_20, f'{param_name}.wav'), 22050, audio)
         plus_twenty_params = {
             'alpha': 0.8,
             'beta': 0.8,
             'gamma': 0.8
         }
-        audio = synthesizer(sentence, plus_twenty_params)
-        write(os.path.join(dir_minus_20, 'all_params.wav'), audio)
+        audio = synthesizer.synthesize(sentence, plus_twenty_params)
+        write(os.path.join(dir_minus_20, 'all_params.wav'), 22050, audio)
 
 
 if __name__ == "__main__":
@@ -172,31 +169,5 @@ if __name__ == "__main__":
     if args.config is not None:
         with Path(args.config).open() as f:
             config.config.update(json.load(f))
-
-    # if `--test-data-folder` was provided, set it as a default test set
-    if args.test_data_folder is not None:
-        test_data_folder = Path(args.test_data_folder).absolute().resolve()
-        assert test_data_folder.exists()
-        config.config["data"] = {
-            "test": {
-                "batch_size": args.batch_size,
-                "num_workers": args.jobs,
-                "datasets": [
-                    {
-                        "type": "CustomDirAudioDataset",
-                        "args": {
-                            "audio_dir": str(test_data_folder / "audio"),
-                            "transcription_dir": str(
-                                test_data_folder / "transcriptions"
-                            ),
-                        },
-                    }
-                ],
-            }
-        }
-
-    assert config.config.get("data", {}).get("test", None) is not None
-    config["data"]["test"]["batch_size"] = args.batch_size
-    config["data"]["test"]["n_jobs"] = args.jobs
 
     main(config, args.output)

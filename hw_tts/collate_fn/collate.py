@@ -103,8 +103,11 @@ def reprocess_tensor(batch, cut_list):
     src_pos = list()
     max_len = int(max(length_text))
     for length_src_row in length_text:
-        src_pos.append(np.pad([i+1 for i in range(int(length_src_row))],
-                              (0, max_len-int(length_src_row)), 'constant'))
+        src_pos.append(np.pad(
+            [i + 1 for i in range(int(length_src_row))],
+            (0, max_len-int(length_src_row)),
+            'constant'
+        ))
     src_pos = torch.from_numpy(np.array(src_pos))
 
     length_mel = np.array(list())

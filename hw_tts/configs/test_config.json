@@ -2,7 +2,7 @@
   "name": "default_config",
   "n_gpu": 1,
   "preprocessing": {
-    "sr": 16000,
+    "sr": 22050,
     "spectrogram": {
       "type": "MelSpectrogram",
       "args": {
@@ -12,10 +12,8 @@
   },
   "augmentations": {},
   "arch": {
-    "type": "SpexPlus",
-    "args": {
-      "n_feats": 128
-    }
+    "type": "FastSpeech2",
+    "args": {}
   },
   "data": {},
   "optimizer": {
