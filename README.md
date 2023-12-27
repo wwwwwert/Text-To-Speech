@@ -3,7 +3,7 @@
 ## Project description
 This is HW3 in the course Deep Learning for Sound Processing.
 
-In this project FastSpeech2 model was implemented for TTS task.
+In this project FastSpeech2 ([paper](https://arxiv.org/pdf/2006.04558.pdf)) model was implemented for TTS task.
 
 ## Project structure
 - **/hw_asr** - project scripts
